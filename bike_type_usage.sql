@@ -1,36 +1,69 @@
-Month,rideable_type,RideCount
-2022_10,classic_bike,213560
-2022_10,docked_bike,12614
-2022_10,electric_bike,332511
-2022_11,classic_bike,144601
-2022_11,docked_bike,5886
-2022_11,electric_bike,187248
-2022_12,classic_bike,73350
-2022_12,docked_bike,1925
-2022_12,electric_bike,106531
-2023_01,classic_bike,90294
-2023_01,docked_bike,1738
-2023_01,electric_bike,98269
-2023_02,classic_bike,89888
-2023_02,docked_bike,2195
-2023_02,electric_bike,98362
-2023_03,classic_bike,107083
-2023_03,docked_bike,3020
-2023_03,electric_bike,148575
-2023_04,classic_bike,169738
-2023_04,docked_bike,8887
-2023_04,electric_bike,247965
-2023_05,classic_bike,269895
-2023_05,docked_bike,13092
-2023_05,electric_bike,321840
-2023_06,classic_bike,313546
-2023_06,docked_bike,14974
-2023_06,electric_bike,391098
-2023_07,classic_bike,362130
-2023_07,docked_bike,18424
-2023_07,electric_bike,387096
-2023_08,classic_bike,285129
-2023_08,docked_bike,11180
-2023_08,electric_bike,284107
-2023_09,classic_bike,347372
-2023_09,electric_bike,318999
+WITH CombinedData AS (
+  SELECT
+    DATE_TRUNC(ride_date, MONTH) AS Month,
+    rideable_type
+  FROM cyclistic_data.`2022_10`
+  UNION ALL
+  SELECT
+    DATE_TRUNC(ride_date, MONTH) AS Month,
+    rideable_type
+  FROM cyclistic_data.`2022_11`
+  UNION ALL
+  SELECT
+    DATE_TRUNC(ride_date, MONTH) AS Month,
+    rideable_type
+  FROM cyclistic_data.`2022_12`
+  UNION ALL
+  SELECT
+    DATE_TRUNC(ride_date, MONTH) AS Month,
+    rideable_type
+  FROM cyclistic_data.`2023_01`
+  UNION ALL
+  SELECT
+    DATE_TRUNC(ride_date, MONTH) AS Month,
+    rideable_type
+  FROM cyclistic_data.`2023_02`
+  UNION ALL
+  SELECT
+    DATE_TRUNC(ride_date, MONTH) AS Month,
+    rideable_type
+  FROM cyclistic_data.`2023_03`
+  UNION ALL
+  SELECT
+    DATE_TRUNC(ride_date, MONTH) AS Month,
+    rideable_type
+  FROM cyclistic_data.`2023_04`
+  UNION ALL
+  SELECT
+    DATE_TRUNC(ride_date, MONTH) AS Month,
+    rideable_type
+  FROM cyclistic_data.`2023_05`
+  UNION ALL
+  SELECT
+    DATE_TRUNC(ride_date, MONTH) AS Month,
+    rideable_type
+  FROM cyclistic_data.`2023_06`
+  UNION ALL
+  SELECT
+    DATE_TRUNC(ride_date, MONTH) AS Month,
+    rideable_type
+  FROM cyclistic_data.`2023_07`
+  UNION ALL
+  SELECT
+    DATE_TRUNC(ride_date, MONTH) AS Month,
+    rideable_type
+  FROM cyclistic_data.`2023_08`
+  UNION ALL
+  SELECT
+    DATE_TRUNC(ride_date, MONTH) AS Month,
+    rideable_type
+  FROM cyclistic_data.`2023_09`
+)
+
+SELECT
+  FORMAT_TIMESTAMP('%Y_%m', Month) AS Month,
+  rideable_type,
+  COUNT(*) AS RideCount
+FROM CombinedData
+GROUP BY Month, rideable_type
+ORDER BY Month, rideable_type;
