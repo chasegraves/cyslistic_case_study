@@ -1,25 +1,41 @@
-Month,member_casual,Count,Percentage
-2022_10,casual,208989,37.407304652890268
-2022_10,member,349696,62.592695347109725
-2022_11,casual,100772,29.837594563785213
-2022_11,member,236963,70.162405436214783
-2022_12,casual,44894,24.693354454748466
-2022_12,member,136912,75.306645545251527
-2023_01,casual,40008,21.023536397601696
-2023_01,member,150293,78.976463602398312
-2023_02,casual,43016,22.587098637401876
-2023_02,member,147429,77.412901362598134
-2023_03,casual,62201,24.045724800717494
-2023_03,member,196477,75.9542751992825
-2023_04,casual,147285,34.526125788227574
-2023_04,member,279305,65.473874211772426
-2023_05,casual,234181,38.71867492687992
-2023_05,member,370646,61.281325073120087
-2023_06,casual,301230,41.859708901111425
-2023_06,member,418388,58.140291098888575
-2023_07,casual,331358,43.165244577606984
-2023_07,member,436292,56.834755422393016
-2023_08,casual,241930,41.682172786415265
-2023_08,member,338486,58.317827213584735
-2023_09,casual,261635,39.262662991036521
-2023_09,member,404736,60.737337008963479
+SELECT
+    t.table_name AS Month,
+    p.member_casual,
+    p.Count,
+    (p.Count / SUM(p.Count) OVER (PARTITION BY t.table_name)) * 100 AS Percentage
+FROM (
+    SELECT '2022_10' AS table_name
+    UNION ALL SELECT '2022_11'
+    UNION ALL SELECT '2022_12'
+    UNION ALL SELECT '2023_01'
+    UNION ALL SELECT '2023_02'
+    UNION ALL SELECT '2023_03'
+    UNION ALL SELECT '2023_04'
+    UNION ALL SELECT '2023_05'
+    UNION ALL SELECT '2023_06'
+    UNION ALL SELECT '2023_07'
+    UNION ALL SELECT '2023_08'
+    UNION ALL SELECT '2023_09'
+) t
+JOIN (
+    SELECT
+        member_casual,
+        table_name,
+        COUNT(*) AS Count
+    FROM (
+        SELECT member_casual, '2022_10' AS table_name FROM cyclistic_data.`2022_10`
+        UNION ALL SELECT member_casual, '2022_11' FROM cyclistic_data.`2022_11`
+        UNION ALL SELECT member_casual, '2022_12' FROM cyclistic_data.`2022_12`
+        UNION ALL SELECT member_casual, '2023_01' FROM cyclistic_data.`2023_01`
+        UNION ALL SELECT member_casual, '2023_02' FROM cyclistic_data.`2023_02`
+        UNION ALL SELECT member_casual, '2023_03' FROM cyclistic_data.`2023_03`
+        UNION ALL SELECT member_casual, '2023_04' FROM cyclistic_data.`2023_04`
+        UNION ALL SELECT member_casual, '2023_05' FROM cyclistic_data.`2023_05`
+        UNION ALL SELECT member_casual, '2023_06' FROM cyclistic_data.`2023_06`
+        UNION ALL SELECT member_casual, '2023_07' FROM cyclistic_data.`2023_07`
+        UNION ALL SELECT member_casual, '2023_08' FROM cyclistic_data.`2023_08`
+        UNION ALL SELECT member_casual, '2023_09' FROM cyclistic_data.`2023_09`
+    ) Participants
+    GROUP BY table_name, member_casual
+) p ON t.table_name = p.table_name
+ORDER BY t.table_name, p.member_casual;
