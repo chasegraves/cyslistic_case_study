@@ -564,9 +564,17 @@ END
 
 ## Act
 
+Now that we have shared the results from the analysis, we can provide recommendations for Cyclistic to implement in order to capitalize on the opportunities identified and address specific areas of improvement. These recommendations are tailored to enhance the company's operational strategies, retain existing customers, and attract new, long-term members. 
 
+1. Implement Targeted Seasonal Promotions: The data analysis reveals that casual riders tend to take longer rides, especially during the warmer months, such as Q2 and Q3. To capitalize on this trend, Cyclistic should introduce targeted seasonal promotions during spring and summer. These promotions could include discounted rates or special offers for leisurely rides, encouraging casual riders to choose annual memberships for cost savings during the peak riding season.
 
+2. Emphasize Cost-Effective Annual Memberships: The analysis demonstrates that annual members opt for shorter trips than casual riders. Cyclistic should emphasize the cost-effectiveness of annual memberships, especially for daily commuters. Promotions or marketing campaigns should highlight how annual memberships result in substantial savings for those who use the service regularly, making it an attractive option for commuters and frequent users.
 
+3. Enhance Electric Bike Offerings: Electric bikes have gained popularity among casual riders and annual members, with longer ride lengths. To further entice casual riders into becoming annual members, Cyclistic should focus on expanding and enhancing its electric bike offerings. This could include increasing the availability of electric bikes, introducing new models, and promoting their benefits. 
+
+## Conclusion
+
+Throughout this project, I assumed the role of a junior data analyst, guiding the entire process through the six essential phases of data analysis: asking questions, preparing data, processing information, conducting analysis, sharing insights, and, finally, taking action. This journey allowed me to apply a diverse set of skills, including proficiency in spreadsheets, R, SQL, and Tableau. As I navigated each stage, I gained valuable experience and knowledge, reinforcing the significance of data-driven decision-making and the impact it can have on businesses. 
 
 ## Appendix 
 
