@@ -126,7 +126,8 @@ Files were then accessed through Microsoft Excel for cleansing. Each file contai
 
 11. Filtered through 'member_casual' one at a time to reveal median values for both 'member' and 'casual'. The formula used was =MEDIAN(P2:P500000). These were saved into new columns.
 
-12. A new excel document was created titled 'median_data' where I stored the results of all median values for each file. The columns in the file were titled as the following: 
+12. A new excel document was created titled 'median_data' where I stored the results of all median values for each file. The columns in the file were titled as the following: ![image](https://github.com/chasegraves/cyslistic_case_study/assets/148483283/643a9ce5-7ce4-4b62-9338-b52742e95863)
+
 
 ## Analyze
 
