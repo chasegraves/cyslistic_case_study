@@ -193,7 +193,9 @@ SELECT
 FROM
     `cyclistic_data`.`median_data`
 ```
-![Uploading AverageRideLengthInMinutes by Month.png…]()
+
+![Median_Minutes by UserType](https://github.com/chasegraves/cyslistic_case_study/assets/148483283/2f152705-9503-444e-8fdb-fa0f1c0d2a42)
+
 
 
 ### Bike Usage by Type
