@@ -550,11 +550,21 @@ Now that the data analysis has been performed it is time to support the data thr
 
 ### Calculated Fields
 
-#### Average Ride Length
+Calculated fields were used for 'Average Ride Length', 'Median Ride Length', 'Bike Usage by Type', and 'Total Member/Casual Rides' to combine data into per quarter views. This reduced cluttered data in the Tableau dashboard and provided additional insights into seasonal trends.
 
-The average ride length was consolidated into quarters to prevent a cluttered view of data. Quarter view also works better for long-term 
+```
+IF RIGHT([Month], 2) >= '01' AND RIGHT([Month], 2) <= '03' THEN 'Q1'
+ELSEIF RIGHT([Month], 2) >= '04' AND RIGHT([Month], 2) <= '06' THEN 'Q2'
+ELSEIF RIGHT([Month], 2) >= '07' AND RIGHT([Month], 2) <= '09' THEN 'Q3'
+ELSE 'Q4'
+END
+```
 
 ![Dashboard 1](https://github.com/chasegraves/cyslistic_case_study/assets/148483283/d5a783a1-9985-4a14-9939-8328f4f832bb)
+
+## Act
+
+
 
 
 
