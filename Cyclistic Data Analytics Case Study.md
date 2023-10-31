@@ -97,7 +97,7 @@ Files were unzipped and stored into one file. I created a copy of each CSV file 
 
 ## Process
 
-First step was to make the remaining files to make it easier to organize and access. Files named were changed from '202210-divvy-tripdata.zip' to '2022_10' for each respective month and year. 
+First step was to make the remaining files to make it easier to organize and access. File names were changed from '202210-divvy-tripdata.zip' to '2022_10' for each respective month and year. 
 
 Files were then accessed through Microsoft Excel for cleansing. Each file contained the following column names: 
 
@@ -110,7 +110,7 @@ Files were then accessed through Microsoft Excel for cleansing. Each file contai
 
 2. 'ride_length' numbers were formatted to ```HH:MM:SS```.
    
-3. Average values for ride length were calculated using ```=AVERAGE(N2:N500000)```.
+3. Average values for ride length were calculated using ```=AVERAGE(N2:N999999)```.
 
 5. Next column created was called 'day_of_week' to determine the weekday of each recorded entry. The formula used was ```=WEEKDAY(C2, 1)``` Scaling from Sunday = 1, to Saturday = 7.
   
@@ -124,7 +124,7 @@ Files were then accessed through Microsoft Excel for cleansing. Each file contai
 
 10. Delimited the column 'started_at' to separate the dates listed from the time in a new column. Delimiter was available under Data > Text to Columns. The new column name was titled 'ride_date'.
 
-11. Filtered through 'member_casual' one at a time to reveal median values for both 'member' and 'casual'. The formula used was ```=MEDIAN(P2:P500000)```. These were saved into new columns.
+11. Filtered through 'member_casual' one at a time to reveal median values for both 'member' and 'casual'. The formula used was ```=MEDIAN(P2:P999999)```. These were saved into new columns.
 
 12. A new excel document was created titled 'median_data' where I stored the results of all median values for each file. The columns in the file were titled as the following: ![image](https://github.com/chasegraves/cyslistic_case_study/assets/148483283/643a9ce5-7ce4-4b62-9338-b52742e95863)
 
@@ -141,11 +141,19 @@ In order to understand the relationship of how both members and casual riders us
 
 2. Created a subquery using 'p' to select 'member_casual', 'ride_length', and 'table_name' which collects the data of each month.
 
-3. EXTRACT to calculate the results from seconds into minutes for both members and casual riders.
+3. CAST is ued to convert the calculated ride length from seconds to minutes in decimal format. 
 
-4. The results are grouped by 'table_name' representing months, and 'member_casual' to identify average ride lengths for both types.
+4. EXTRACT to calculate the results from seconds into minutes for both members and casual riders.
 
-5. The results create a new column named 'AverageRideLengthInMinutes' with the results of the averages for both members and casual riders for the past 12 months. 
+5. JOIN combines the data from the subqueries 't' representing months, and 'p' representing the rider type.
+
+6. UNION ALL once again to pull 'member_casual' and 'ride_length' from all tables. 
+
+7. GROUP BY for 'table_name' and 'member_casual' to ensure that the calculations are done for each combination of these values.
+
+8. ORDER BY sorts the data by month and rider type. 
+
+9. The results create a new column named 'AverageRideLengthInMinutes' with the results of the averages for both members and casual riders for the past 12 months. 
 
 ```
 SELECT
@@ -331,6 +339,10 @@ A traffic analysis was performed based on the days of the week to understand whi
 
 6. COUNT(*) adds up the total amount of rides for each day of the week to a new column called 'TrafficCount'.
 
+7. UNION ALL to select 'day_of_week' data from all 12 tables.
+
+8. ORDER BY organizes the data into each day of the week. 
+
 ```
 WITH DayOfWeekOrder AS (
     SELECT 1 AS day_order, 'Sunday' AS DayOfWeek
@@ -460,6 +472,17 @@ ORDER BY t.table_name, p.member_casual;
 
 This query summarizes the total amount of rides completed through Cyclistic per Quarter to gain insight into seasonal trends and business growth. 
 
+1. CASE categorizes the 'ride_date' into quarters of the year (Q4 - 2022, Q1 - 2023, etc.) 
+
+2. COUNT(*) adds up the total number of entries for each quarter.
+
+3. FROM pulls the 'ride_date' data from all tables in the dataset.
+
+4. UNION ALL selects all 12 months to extract data from. 
+
+5. GROUP BY puts the groups of data per quarter based on the CASE statement from previous.
+
+6. CASE is used again to ensure the months are listed in chronological order. 
 
 
 ```
@@ -523,7 +546,13 @@ ORDER BY
 
 ## Share
 
-Now that the data analysis has been performed it is time to support the data through visualization of the key findings. Data was downloaded from all 6 SQL queries and uploaded through Tableau Desktop. The Tableau public link can be access right [here](https://public.tableau.com/views/CyclisticCaseStudy_16987003486520/Dashboard1?:language=en-US&:display_count=n&:origin=viz_share_link).
+Now that the data analysis has been performed it is time to support the data through visualization of the key findings. Data was downloaded from all 6 SQL queries and uploaded through Tableau Desktop. The Tableau public link can be accessed right [here](https://public.tableau.com/views/CyclisticCaseStudy_16987003486520/Dashboard1?:language=en-US&:display_count=n&:origin=viz_share_link).
+
+### Calculated Fields
+
+#### Average Ride Length
+
+The average ride length was consolidated into quarters to prevent a cluttered view of data. Quarter view also works better for long-term 
 
 ![Dashboard 1](https://github.com/chasegraves/cyslistic_case_study/assets/148483283/d5a783a1-9985-4a14-9939-8328f4f832bb)
 
