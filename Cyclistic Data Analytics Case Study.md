@@ -384,6 +384,30 @@ ORDER BY dwo.day_order;
 
 ### Total Member/Casual Rides
 
+This query was created to see how many Cyclistic users are currently members or casual users. This allows us to see where the company stands regards retention and growth to optimize business strategies. 
+
+1. Created a subquery using 't' to define the previous 12 months. 
+
+2. (p.Count/ SUM(p.Count) OVER (PARTITION BY t.table.name)) allows the query to initiate the calculation of the percentage of casual to member usage. Following it is multipled by 100 to be written as a percentage.  
+
+3. SUM(p.Count) OVER (PARTITION BY t.table.name) additionally allows the query to calculate the total rides for each month.
+
+4. UNION ALL SELECT for subquery 't' transforms the file names to become the table names.
+
+5. Created a subquery using 'p' along with 'Count' to add up the rides for each month and categorize results as 'member' or 'casual'.
+   
+6. JOIN is used to combine the results of the month subquery 't', and the count subquery 'p'.
+
+7. UNION ALL SELECT for subquery 'p' allows the query to select 'member_casual' and the new date column '2022_10' from all 12 tables. 
+
+8. PARTICIPANTS aggregates and prepares the data from all tables.
+
+9. GROUP BY is used to aggregate by 'table_name' and 'member_casual'.
+
+10. ON allows us to specify the join conditions of 't' and 'p'.
+
+11. ORDER BY will organize the data based on the month and the total rides of members and casual riders. 
+
 ```
 SELECT
     t.table_name AS Month,
@@ -433,6 +457,10 @@ ORDER BY t.table_name, p.member_casual;
 
 
 ### Total Cyclistic Rides
+
+This query summarizes the total amount of rides completed through Cyclistic per Quarter to gain insight into seasonal trends and business growth. 
+
+
 
 ```
 SELECT
@@ -493,6 +521,11 @@ ORDER BY
 
 ![TotalEntries by Quarter](https://github.com/chasegraves/cyslistic_case_study/assets/148483283/5d02685d-c136-4045-b9dc-479041d8a5ae)
 
+## Share
+
+Now that the data analysis has been performed it is time to support the data through visualization of the key findings. Data was downloaded from all 6 SQL queries and uploaded through Tableau Desktop. The Tableau public link can be access right [here](https://public.tableau.com/views/CyclisticCaseStudy_16987003486520/Dashboard1?:language=en-US&:display_count=n&:origin=viz_share_link).
+
+![Dashboard 1](https://github.com/chasegraves/cyslistic_case_study/assets/148483283/d5a783a1-9985-4a14-9939-8328f4f832bb)
 
 
 
