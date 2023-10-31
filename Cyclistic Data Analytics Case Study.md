@@ -131,7 +131,57 @@ Files were then accessed through Microsoft Excel for cleansing. Each file contai
 
 ## Analyze
 
-The following stage was completed through SQL. A bucket was created to store all 13 files to use for analysis. 
+The following stage was completed through SQL in Google BigQuery. A bucket was created to store all 13 files to use for analysis. Each section displays the working query that was used to gather the results. 
+
+### Average Ride Length
+
+```
+SELECT
+    t.table_name AS Month,
+    p.member_casual,
+    AVG(
+        CAST(EXTRACT(HOUR FROM p.ride_length) * 3600 + EXTRACT(MINUTE FROM p.ride_length) * 60 + EXTRACT(SECOND FROM p.ride_length) AS DECIMAL) / 60
+    ) AS AverageRideLengthInMinutes
+FROM (
+    SELECT '2022_10' AS table_name
+    UNION ALL SELECT '2022_11'
+    UNION ALL SELECT '2022_12'
+    UNION ALL SELECT '2023_01'
+    UNION ALL SELECT '2023_02'
+    UNION ALL SELECT '2023_03'
+    UNION ALL SELECT '2023_04'
+    UNION ALL SELECT '2023_05'
+    UNION ALL SELECT '2023_06'
+    UNION ALL SELECT '2023_07'
+    UNION ALL SELECT '2023_08'
+    UNION ALL SELECT '2023_09'
+) t
+JOIN (
+    SELECT
+        member_casual,
+        ride_length,
+        table_name
+    FROM (
+        SELECT member_casual, ride_length, '2022_10' AS table_name FROM cyclistic_data.`2022_10`
+        UNION ALL SELECT member_casual, ride_length, '2022_11' FROM cyclistic_data.`2022_11`
+        UNION ALL SELECT member_casual, ride_length, '2022_12' FROM cyclistic_data.`2022_12`
+        UNION ALL SELECT member_casual, ride_length, '2023_01' FROM cyclistic_data.`2023_01`
+        UNION ALL SELECT member_casual, ride_length, '2023_02' FROM cyclistic_data.`2023_02`
+        UNION ALL SELECT member_casual, ride_length, '2023_03' FROM cyclistic_data.`2023_03`
+        UNION ALL SELECT member_casual, ride_length, '2023_04' FROM cyclistic_data.`2023_04`
+        UNION ALL SELECT member_casual, ride_length, '2023_05' FROM cyclistic_data.`2023_05`
+        UNION ALL SELECT member_casual, ride_length, '2023_06' FROM cyclistic_data.`2023_06`
+        UNION ALL SELECT member_casual, ride_length, '2023_07' FROM cyclistic_data.`2023_07`
+        UNION ALL SELECT member_casual, ride_length, '2023_08' FROM cyclistic_data.`2023_08`
+        UNION ALL SELECT member_casual, ride_length, '2023_09' FROM cyclistic_data.`2023_09`
+    ) Participants
+) p ON t.table_name = p.table_name
+GROUP BY t.table_name, p.member_casual
+ORDER BY t.table_name, p.member_casual;
+```
+
+![AverageRideLengthInMinutes by Month](https://github.com/chasegraves/cyslistic_case_study/assets/148483283/2a3d843a-faec-43c1-94b4-db0485072117)
+
 
 ### Median Ride Length
 
@@ -143,7 +193,247 @@ SELECT
 FROM
     `cyclistic_data`.`median_data`
 ```
+![Uploading AverageRideLengthInMinutes by Month.png…]()
 
+
+### Bike Usage by Type
+
+```
+WITH CombinedData AS (
+  SELECT
+    DATE_TRUNC(ride_date, MONTH) AS Month,
+    rideable_type
+  FROM cyclistic_data.`2022_10`
+  UNION ALL
+  SELECT
+    DATE_TRUNC(ride_date, MONTH) AS Month,
+    rideable_type
+  FROM cyclistic_data.`2022_11`
+  UNION ALL
+  SELECT
+    DATE_TRUNC(ride_date, MONTH) AS Month,
+    rideable_type
+  FROM cyclistic_data.`2022_12`
+  UNION ALL
+  SELECT
+    DATE_TRUNC(ride_date, MONTH) AS Month,
+    rideable_type
+  FROM cyclistic_data.`2023_01`
+  UNION ALL
+  SELECT
+    DATE_TRUNC(ride_date, MONTH) AS Month,
+    rideable_type
+  FROM cyclistic_data.`2023_02`
+  UNION ALL
+  SELECT
+    DATE_TRUNC(ride_date, MONTH) AS Month,
+    rideable_type
+  FROM cyclistic_data.`2023_03`
+  UNION ALL
+  SELECT
+    DATE_TRUNC(ride_date, MONTH) AS Month,
+    rideable_type
+  FROM cyclistic_data.`2023_04`
+  UNION ALL
+  SELECT
+    DATE_TRUNC(ride_date, MONTH) AS Month,
+    rideable_type
+  FROM cyclistic_data.`2023_05`
+  UNION ALL
+  SELECT
+    DATE_TRUNC(ride_date, MONTH) AS Month,
+    rideable_type
+  FROM cyclistic_data.`2023_06`
+  UNION ALL
+  SELECT
+    DATE_TRUNC(ride_date, MONTH) AS Month,
+    rideable_type
+  FROM cyclistic_data.`2023_07`
+  UNION ALL
+  SELECT
+    DATE_TRUNC(ride_date, MONTH) AS Month,
+    rideable_type
+  FROM cyclistic_data.`2023_08`
+  UNION ALL
+  SELECT
+    DATE_TRUNC(ride_date, MONTH) AS Month,
+    rideable_type
+  FROM cyclistic_data.`2023_09`
+)
+
+SELECT
+  FORMAT_TIMESTAMP('%Y_%m', Month) AS Month,
+  rideable_type,
+  COUNT(*) AS RideCount
+FROM CombinedData
+GROUP BY Month, rideable_type
+ORDER BY Month, rideable_type;
+```
+
+![RideCount by rideable_type](https://github.com/chasegraves/cyslistic_case_study/assets/148483283/3accfed6-8086-48fe-a50b-931c98ddb46d)
+
+
+### Traffic by Day of Week 
+
+```
+WITH DayOfWeekOrder AS (
+    SELECT 1 AS day_order, 'Sunday' AS DayOfWeek
+    UNION ALL SELECT 2, 'Monday'
+    UNION ALL SELECT 3, 'Tuesday'
+    UNION ALL SELECT 4, 'Wednesday'
+    UNION ALL SELECT 5, 'Thursday'
+    UNION ALL SELECT 6, 'Friday'
+    UNION ALL SELECT 7, 'Saturday'
+)
+
+SELECT
+    dwo.DayOfWeek,
+    COALESCE(TrafficCount, 0) AS TrafficCount
+FROM DayOfWeekOrder dwo
+LEFT JOIN (
+    SELECT
+        CASE day_of_week
+            WHEN 1 THEN 'Sunday'
+            WHEN 2 THEN 'Monday'
+            WHEN 3 THEN 'Tuesday'
+            WHEN 4 THEN 'Wednesday'
+            WHEN 5 THEN 'Thursday'
+            WHEN 6 THEN 'Friday'
+            WHEN 7 THEN 'Saturday'
+        END AS DayOfWeek,
+        COUNT(*) AS TrafficCount
+    FROM (
+        SELECT day_of_week FROM cyclistic_data.`2022_10`
+        UNION ALL SELECT day_of_week FROM cyclistic_data.`2022_11`
+        UNION ALL SELECT day_of_week FROM cyclistic_data.`2022_12`
+        UNION ALL SELECT day_of_week FROM cyclistic_data.`2023_01`
+        UNION ALL SELECT day_of_week FROM cyclistic_data.`2023_02`
+        UNION ALL SELECT day_of_week FROM cyclistic_data.`2023_03`
+        UNION ALL SELECT day_of_week FROM cyclistic_data.`2023_04`
+        UNION ALL SELECT day_of_week FROM cyclistic_data.`2023_05`
+        UNION ALL SELECT day_of_week FROM cyclistic_data.`2023_06`
+        UNION ALL SELECT day_of_week FROM cyclistic_data.`2023_07`
+        UNION ALL SELECT day_of_week FROM cyclistic_data.`2023_08`
+        UNION ALL SELECT day_of_week FROM cyclistic_data.`2023_09`
+    ) CombinedData
+    GROUP BY DayOfWeek
+) TrafficData
+ON dwo.DayOfWeek = TrafficData.DayOfWeek
+ORDER BY dwo.day_order;
+```
+
+![TrafficCount by DayOfWeek](https://github.com/chasegraves/cyslistic_case_study/assets/148483283/65d9ab11-8af5-45c4-bb30-65a478a7a6f1)
+
+
+### Total Member/Casual Rides
+
+```
+SELECT
+    t.table_name AS Month,
+    p.member_casual,
+    p.Count,
+    (p.Count / SUM(p.Count) OVER (PARTITION BY t.table_name)) * 100 AS Percentage
+FROM (
+    SELECT '2022_10' AS table_name
+    UNION ALL SELECT '2022_11'
+    UNION ALL SELECT '2022_12'
+    UNION ALL SELECT '2023_01'
+    UNION ALL SELECT '2023_02'
+    UNION ALL SELECT '2023_03'
+    UNION ALL SELECT '2023_04'
+    UNION ALL SELECT '2023_05'
+    UNION ALL SELECT '2023_06'
+    UNION ALL SELECT '2023_07'
+    UNION ALL SELECT '2023_08'
+    UNION ALL SELECT '2023_09'
+) t
+JOIN (
+    SELECT
+        member_casual,
+        table_name,
+        COUNT(*) AS Count
+    FROM (
+        SELECT member_casual, '2022_10' AS table_name FROM cyclistic_data.`2022_10`
+        UNION ALL SELECT member_casual, '2022_11' FROM cyclistic_data.`2022_11`
+        UNION ALL SELECT member_casual, '2022_12' FROM cyclistic_data.`2022_12`
+        UNION ALL SELECT member_casual, '2023_01' FROM cyclistic_data.`2023_01`
+        UNION ALL SELECT member_casual, '2023_02' FROM cyclistic_data.`2023_02`
+        UNION ALL SELECT member_casual, '2023_03' FROM cyclistic_data.`2023_03`
+        UNION ALL SELECT member_casual, '2023_04' FROM cyclistic_data.`2023_04`
+        UNION ALL SELECT member_casual, '2023_05' FROM cyclistic_data.`2023_05`
+        UNION ALL SELECT member_casual, '2023_06' FROM cyclistic_data.`2023_06`
+        UNION ALL SELECT member_casual, '2023_07' FROM cyclistic_data.`2023_07`
+        UNION ALL SELECT member_casual, '2023_08' FROM cyclistic_data.`2023_08`
+        UNION ALL SELECT member_casual, '2023_09' FROM cyclistic_data.`2023_09`
+    ) Participants
+    GROUP BY table_name, member_casual
+) p ON t.table_name = p.table_name
+ORDER BY t.table_name, p.member_casual;
+```
+
+![Count by member_casual](https://github.com/chasegraves/cyslistic_case_study/assets/148483283/6634ea07-f1c3-4780-95ef-e3d0dd91787f)
+
+
+### Total Cyclistic Rides
+
+```
+SELECT
+    CASE
+        WHEN ride_date <= '2022-12-31' THEN 'Q4-2022'
+        WHEN ride_date <= '2023-03-31' THEN 'Q1-2023'
+        WHEN ride_date <= '2023-06-30' THEN 'Q2-2023'
+        WHEN ride_date <= '2023-09-30' THEN 'Q3-2023'
+    END AS Quarter,
+    COUNT(*) AS TotalEntries
+FROM
+(
+    SELECT ride_date
+    FROM cyclistic_data.`2022_10`
+    UNION ALL
+    SELECT ride_date
+    FROM cyclistic_data.`2022_11`
+    UNION ALL
+    SELECT ride_date
+    FROM cyclistic_data.`2022_12`
+    UNION ALL
+    SELECT ride_date
+    FROM cyclistic_data.`2023_01`
+    UNION ALL
+    SELECT ride_date
+    FROM cyclistic_data.`2023_02`
+    UNION ALL
+    SELECT ride_date
+    FROM cyclistic_data.`2023_03`
+    UNION ALL
+    SELECT ride_date
+    FROM cyclistic_data.`2023_04`
+    UNION ALL
+    SELECT ride_date
+    FROM cyclistic_data.`2023_05`
+    UNION ALL
+    SELECT ride_date
+    FROM cyclistic_data.`2023_06`
+    UNION ALL
+    SELECT ride_date
+    FROM cyclistic_data.`2023_07`
+    UNION ALL
+    SELECT ride_date
+    FROM cyclistic_data.`2023_08`
+    UNION ALL
+    SELECT ride_date
+    FROM cyclistic_data.`2023_09`
+) Quarters
+GROUP BY Quarter
+ORDER BY
+    CASE
+        WHEN Quarter = 'Q4-2022' THEN 1
+        WHEN Quarter = 'Q1-2023' THEN 2
+        WHEN Quarter = 'Q2-2023' THEN 3
+        WHEN Quarter = 'Q3-2023' THEN 4
+    END;
+```
+
+![TotalEntries by Quarter](https://github.com/chasegraves/cyslistic_case_study/assets/148483283/5d02685d-c136-4045-b9dc-479041d8a5ae)
 
 
 
