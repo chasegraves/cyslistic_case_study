@@ -131,6 +131,9 @@ Files were then accessed through Microsoft Excel for cleansing. Each file contai
 
 ## Analyze
 
+The following stage was completed through SQL. A bucket was created to store all 13 files to use for analysis. 
+
+###
 
 ## Appendix 
 
