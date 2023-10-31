@@ -133,7 +133,20 @@ Files were then accessed through Microsoft Excel for cleansing. Each file contai
 
 The following stage was completed through SQL. A bucket was created to store all 13 files to use for analysis. 
 
-###
+### Median Ride Length
+
+```
+SELECT
+    `Month`,
+    EXTRACT(HOUR FROM `Median`) * 60 + EXTRACT(MINUTE FROM `Median`) AS `Median_Minutes`,
+    `UserType`
+FROM
+    `cyclistic_data`.`median_data`
+```
+
+
+
+
 
 ## Appendix 
 
