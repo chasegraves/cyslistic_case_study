@@ -97,7 +97,7 @@ Files were unzipped and stored into one file. I created a copy of each CSV file 
 
 ## Process
 
-First step was remaining files to make it easier to organize and access. Files named were changed from '202210-divvy-tripdata.zip' to '2022_10' for each respective month and year. 
+First step was to make the remaining files to make it easier to organize and access. Files named were changed from '202210-divvy-tripdata.zip' to '2022_10' for each respective month and year. 
 
 Files were then accessed through Microsoft Excel for cleansing. Each file contained the following column names: 
 
@@ -106,25 +106,25 @@ Files were then accessed through Microsoft Excel for cleansing. Each file contai
 
 ### Data Cleansing
 
-1. A Column was created titled 'ride_length' measuring the difference between 'ended_at' and 'started at' to determine time spent per trip using =D2-C2
+1. A Column was created titled 'ride_length' measuring the difference between 'ended_at' and 'started at' to determine time spent per trip using ```=D2-C2```.
 
-2. 'ride_length' numbers were formatted to HH:MM:SS
+2. 'ride_length' numbers were formatted to ```HH:MM:SS```.
    
-3. Average values for ride length were calculated using =AVERAGE(N2:N500000).
+3. Average values for ride length were calculated using ```=AVERAGE(N2:N500000)```.
 
-5. Next column created was called 'day_of_week' to determine the weekday of each recorded entry. The formula used was =WEEKDAY(C2, 1) Scaling from Sunday = 1, to Saturday = 7.
+5. Next column created was called 'day_of_week' to determine the weekday of each recorded entry. The formula used was ```=WEEKDAY(C2, 1)``` Scaling from Sunday = 1, to Saturday = 7.
   
 6. Data was converted into a table for organization by accessing 'Insert > Table > Selection of all cells. 
 
 7. 'ride_length' was filtered to show minimum and maximum values, revealing potential biases in data.
   
-8. Minimum value outliers with invalid entries such as '##########' were changed to the calculated averages for improved accuracy.
+8. Minimum value outliers with invalid entries such as ```##########``` were changed to the calculated averages for improved accuracy.
 
-9. Maximum value outliers exceeding the SQL allowance of '23:59:59' were replaced with the calculated averages for improved accuracy.
+9. Maximum value outliers exceeding the SQL allowance of ```23:59:59``` were replaced with the calculated averages for improved accuracy.
 
 10. Delimited the column 'started_at' to separate the dates listed from the time in a new column. Delimiter was available under Data > Text to Columns. The new column name was titled 'ride_date'.
 
-11. Filtered through 'member_casual' one at a time to reveal median values for both 'member' and 'casual'. The formula used was =MEDIAN(P2:P500000). These were saved into new columns.
+11. Filtered through 'member_casual' one at a time to reveal median values for both 'member' and 'casual'. The formula used was ```=MEDIAN(P2:P500000)```. These were saved into new columns.
 
 12. A new excel document was created titled 'median_data' where I stored the results of all median values for each file. The columns in the file were titled as the following: ![image](https://github.com/chasegraves/cyslistic_case_study/assets/148483283/643a9ce5-7ce4-4b62-9338-b52742e95863)
 
@@ -134,6 +134,18 @@ Files were then accessed through Microsoft Excel for cleansing. Each file contai
 The following stage was completed through SQL in Google BigQuery. A bucket was created to store all 13 files to use for analysis. Each section displays the working query that was used to gather the results. 
 
 ### Average Ride Length
+
+In order to understand the relationship of how both members and casual riders use Cyclistic, a query was created to identify the average ride lengths in minutes over the course of the last 12 months. The following steps were implemented: 
+
+1. Created a subquery using 't' to list the months as 'table_name' using the UNION ALL from October 2022 to September 2023.
+
+2. Created a subquery using 'p' to select 'member_casual', 'ride_length', and 'table_name' which collects the data of each month.
+
+3. EXTRACT to calculate the results from seconds into minutes for both members and casual riders.
+
+4. The results are grouped by 'table_name' representing months, and 'member_casual' to identify average ride lengths for both types.
+
+5. The results create a new column named 'AverageRideLengthInMinutes' with the results of the averages for both members and casual riders for the past 12 months. 
 
 ```
 SELECT
@@ -183,7 +195,18 @@ ORDER BY t.table_name, p.member_casual;
 ![AverageRideLengthInMinutes by Month](https://github.com/chasegraves/cyslistic_case_study/assets/148483283/2a3d843a-faec-43c1-94b4-db0485072117)
 
 
+
 ### Median Ride Length
+
+Due to potential biases from outliers in the averages, the median ride length was used to support the previous query. Since a worksheet was created specifically for this calculation the only table used was 'median_data'.
+
+1. The query selects all three columns, 'Month', 'Median, 'UserType'.
+
+2. EXTRACT to calculate the ride length into minutes.
+
+3. The results consolidate the data based on the 'UserType', which identifies either 'Member' or 'Casual'. 
+
+
 
 ```
 SELECT
@@ -199,6 +222,22 @@ FROM
 
 
 ### Bike Usage by Type
+
+In order to understand customer preferences when using Cyclistic, an analysis of bike type utilization was performed. There are three bike types used in Cyclistic's services: Electric, Classic and Docked. 
+
+1. UNION ALL to consolidate data from all previous 12 months. 
+
+2. DATA_TRUNC to truncate 'ride_date' to their respective months. 
+
+3. FORMAT_TIMESTAMP to convert the file titles into their respective months. 
+
+4. COUNT(*) was used to count the number of rides for each combination of month and bike type.
+
+5. Pulled the data as 'CombinedData'.
+
+6. GROUPBY allowed the results to be grouped by 'Month' and 'rideable_type'
+
+7. A new column was generated called 'RideCount' to list the total rides of each bike type per month. 
 
 ```
 WITH CombinedData AS (
@@ -275,7 +314,22 @@ ORDER BY Month, rideable_type;
 ![RideCount by rideable_type](https://github.com/chasegraves/cyslistic_case_study/assets/148483283/3accfed6-8086-48fe-a50b-931c98ddb46d)
 
 
+
 ### Traffic by Day of Week 
+
+A traffic analysis was performed based on the days of the week to understand which days have the highest usage. 
+
+1. DayOfWeekOrder was implemented to assign a numerical 'day_order' starting from Sunday (1), to Saturday (7)
+
+2. UNION ALL to combine all the days of the week. 
+
+3. DayOfWeek and COALESCE are selected to calculate as 'TrafficCount' which represents the total counts per day of the week. COALESCE is also used to counter potential NULL values returning as '0'.
+
+4. LEFT JOIN to ensure results include all the days of the week. 
+
+5. CASE was used to connect the numerical value of 'day_of_week' to the full name of each day. 
+
+6. COUNT(*) adds up the total amount of rides for each day of the week to a new column called 'TrafficCount'.
 
 ```
 WITH DayOfWeekOrder AS (
@@ -327,6 +381,7 @@ ORDER BY dwo.day_order;
 ![TrafficCount by DayOfWeek](https://github.com/chasegraves/cyslistic_case_study/assets/148483283/65d9ab11-8af5-45c4-bb30-65a478a7a6f1)
 
 
+
 ### Total Member/Casual Rides
 
 ```
@@ -374,6 +429,7 @@ ORDER BY t.table_name, p.member_casual;
 ```
 
 ![Count by member_casual](https://github.com/chasegraves/cyslistic_case_study/assets/148483283/6634ea07-f1c3-4780-95ef-e3d0dd91787f)
+
 
 
 ### Total Cyclistic Rides
